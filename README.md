@@ -43,6 +43,10 @@ for publication are included in the R script
 
 -   [Summary of findings](#summary-of-findings)
 
+    -   [Main Figures](#main-figures)
+    -   [Supplementary Figure](#supplementary-figures)
+    -   [Supplementary Tables](#supplementary-tables)
+
 </br></br>
 
 # Generation of the UKBB Sampling Weights
@@ -335,6 +339,8 @@ phenotypes, using publically available summary statistic files
 accessible via consortia websites or the [MRC-IEU OpenGWAS
 project](https://gwas.mrcieu.ac.uk)
 
+</br>
+
 #### Autosomal GWA on sex
 
 We conducted autosomal wGWA and standard GWA on biological sex and
@@ -370,7 +376,29 @@ Executes the script
 [UKBBweighting.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/UKBBweighting.R)
 to generate figures and tables.
 
+## Main Figures
+
 ### Figure 2
+
+Panel (A) presents the truncated density curves of the normalized
+propensity weights for UKBB participants. Panel (B) shows standardized
+coefficients of variables predicting UKBB participation (HSE = 0; UKBB
+= 1) in univariate logistic regression models. Coefficients are provided
+for all UKBB participants and males and females separately. Panel (C)
+plots the correlation coefficients among all auxiliary variables within
+the UKBB (obtained from weighted and unweighted analyses), and within
+the HSE. Highlighted in blue are results where the coefficients between
+the UKBB (rUKBB) and the reference sample (rHSE) deviated (rdiff \>0.05,
+where rdiff=rHSE-rUKBB). Panel (D) depicts the percentage change (for
+categorical variables) and change in means as a function of weighting,
+obtained for a number of health-related UKBB phenotypes, including the
+auxiliary variables (blue) and variables not used to construct the
+weights. Percentage change was estimated as the difference between the
+weighted (pw) and unweighted proportion (p), divided by the unweighted
+value \[(pw – p) / p × 100\]. Change in means was expressed as a
+standardized mean difference, estimated as the difference between the
+unweighted mean (m) and the weighted mean (mw), divided by the standard
+deviation of the unweighted standard deviation (sd) \[mw-m/sd\].
 
 ##### A
 
@@ -398,6 +426,15 @@ to generate figures and tables.
 
 ### Figure 3
 
+Summary of comparison between SNP effects obtained from probability
+weighted genome-wide association (wGWA) and standard GWA analyses on 19
+traits. Shown in panel (A) are the numbers and proportions of SNPs
+reaching genome-wide significance in either standard GWA, wGWA or both
+(GWA & wGWA). Panel (B) summarizes the proportions of overestimated and
+underestimated SNP effects as a result of participation bias. The
+scatter plots to the right plot the weighted (\|𝛽iw\|) against the
+unweighted (\|𝛽i\|) SNP effects for four selected traits.
+
 <img src="results/figures/snPlotCombinedProp.png" alt="Figure 23" width="100%" style="display: block; margin: auto;" />
 </br> </br>
 
@@ -423,9 +460,40 @@ contains the code used to generate the output.
 
 <img src="results/figures/ldscorePlot.png" alt="A caption" width="100%" />
 
-</br> </br>
+</br></br>
 
-# Supplement Figures
+### Figure 5. Weighted SNP heritability and genetic correlation estimates
+
+Plotted in Panel (A) are the differences in SNP heritability (h2diff =
+h2 - hw2) and genetic correlations (rgdiff = r - rgw) obtained from
+weighted and standard GWA analyses. The diagonal in Panel A shows
+estimates of h2diff, where bias leading to overestimation (h2 - hw2 \>
+0.02) are plotted in orange and bias leading to underestimation (h2 -
+hw2 \< -0.02) are plotted in yellow. Estimates of rgdiff are shown on
+the off-diagonal, highlighting overestimated genetic correlations (r -
+rgw \> 0.1) in blue and underestimated genetic correlations (r - rgw \<
+-0.1) green. Panel B illustrates estimates of genetic correlation (r,
+rgw) and the corresponding confidence intervals for two selected traits.
+(\*) Estimates showing significant differences (pFDR\<0.05).
+
+<img src="results/figures/heatRGComb.png" alt="A caption" width="100%" />
+
+</br></br>
+
+### Figure 6. Effect of participation bias on MR estimates of exposure-outcome associations
+
+Summary of results obtained weighted (αw) and standard (α) Mendelian
+Randomization (MR). MR estimates subject to overestimation (α – αw \>
+0.1) as a results of participation bias are highlighted in violet. MR
+estimates subject to underestimation (α – αw \< -0.1) are highlighted in
+cyan. The asterisks highlight results where α and αw showed significant
+(pFDR\<0.05) differences
+
+<img src="results/figures/MRcombOut.png" alt="A caption" width="100%" />
+
+</br></br></br>
+
+## Supplementary Figures
 
 #### sFigure 1. Estimated correlations among harmonized variables in the HSE and the UK Census Microdata
 
@@ -453,7 +521,7 @@ contains the code used to generate the output.
 
 #### sFigure 5. SNP heritability estimates in weighted (wGWA) and standard genome-wide (GWA) analyses
 
-LDSC heritability ($h^2$) estimates, obtained using the output from
+LDSC heritability (h2) estimates, obtained using the output from
 standard (unweighted) GWA analyses \[GWA(h2)\] and probability weighted
 GWA \[wGWA(h2)\]. The right panel displays the differences in SNP
 heritability between standard and weighted GWA (h2 - hw2). (\*)
@@ -462,3 +530,36 @@ Estimates showing significant differences (pFDR\<0.05)
 <img src="results/figures/h2PlotLiab.png" alt="A caption" width="100%" />
 
 </br></br>
+
+#### sFigure 6. Genetic correlation estimates from weighted and standard genome-wide analyses
+
+LDSC genetic correlations estimates, obtained using the output from
+standard (unweighted) GWA analyses (upper panel) and probability
+weighted GWA (lower panel)
+
+<img src="results/figures/rgCombPlot.png" alt="A caption" width="100%" />
+
+</br></br>
+
+#### sFigure 7. Autosomal genome-wide association analyses on biological sex
+
+Panel A displays the SNP heritability estimates of sex-associated
+variants obtained from standard GWA and wGWA. Panel B displays the
+effects of 49 autosomal variants on sex, comparing estimates obtained
+from standard GWA and wGWA to estimates obtained from an independent
+sample of \>2,400,000 volunteers.
+
+<img src="results/figures/sexBiasPlot.png" alt="A caption" width="50%" />
+
+</br></br>
+
+#### sFigure 8. Effect of participation bias on exposure-outcome associations obtained from Mendelian Randomization
+
+<img src="results/figures/plorMRAllsupp.png" alt="A caption" width="100%" />
+
+</br></br>
+
+## Supplementary Tables
+
+All supplementary tables are listed in [weightingUKBB.xlsx](), using the
+script `createTables.R`
