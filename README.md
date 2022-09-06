@@ -73,7 +73,7 @@ Executes the script
     $HOME/programs/R-4.1.2/bin/R --no-save < $HOME/analysis/recodePhenoHSE.R --args $HOME > $HOME/output/log/recodePhenoHSE.log 2>&1 & disown
 
 Executes the script
-[recodePhenoHSE.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/recodePhenoHSE.R)
+[recodePhenoHSE.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis)
 
 </br>
 
