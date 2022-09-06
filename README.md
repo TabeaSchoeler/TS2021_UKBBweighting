@@ -5,7 +5,7 @@ Correction for participation bias in the UK Biobank
 
 The complete analytical pipeline used to run the weighted genome-wide
 association analyses is included in the script
-[UKBBweightingPipeline.sh](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis).
+[UKBBweightingPipeline.sh](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/UKBBweightingPipeline.sh).
 The scripts used to process the results and prepare the plots and table
 for publication are included in the R script
 [UKBBweighting.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis).
@@ -53,7 +53,7 @@ for publication are included in the R script
     sbatch --export=HOME=$HOME,sample="extractUKBB" --chdir=$HOME/output/log --job-name recodePheno.${sample} --partition=cluster2 $HOME/analysis/recodePheno.sh
 
 Executes the script
-[exxtractUKBB.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis)
+[exxtractUKBB.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/exxtractUKBB.R)
 
 </br>
 
@@ -61,7 +61,7 @@ Executes the script
     sbatch --export=HOME=$HOME,sample="UKBB" --chdir=$HOME/output/log --job-name recodePheno.${sample} --partition=cluster2 $HOME/analysis/recodePheno.sh
 
 Executes the script
-[recodePhenoUKBB.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis)
+[recodePhenoUKBB.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/recodePhenoUKBB.R)
 
 </br>
 
@@ -71,7 +71,7 @@ Executes the script
     $HOME/programs/R-4.1.2/bin/R --no-save < $HOME/analysis/recodePhenoHSE.R --args $HOME > $HOME/output/log/recodePhenoHSE.log 2>&1 & disown
 
 Executes the script
-[recodePhenoHSE.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis)
+[recodePhenoHSE.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/recodePhenoHSE.R)
 
 </br>
 
@@ -79,14 +79,14 @@ Executes the script
     sbatch --export=HOME=$HOME --chdir=$HOME/output/log --partition=cluster2 --time="0-02:00:00" --output=weighPrepUKBB_HSE.out $HOME/analysis/weighPrepUKBB_HSE.sh
 
 Executes the script
-[weighPrepUKBB_HSE.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis)
+[weighPrepUKBB_HSE.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/weighPrepUKBB_HSE.R)
 
 </br>
 
 #### Assess performance of the sampling weights
 
 Relies on the script
-[weighUKBB_HSE.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis)
+[weighUKBB_HSE.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/weighUKBB_HSE.R)
 to perform LASSO regression in glmnet to predict UKBB participation,
 conditional on all harmonized auxiliary variables.
 
@@ -150,7 +150,7 @@ normalized weight and HSE participants were given a weight of 1.
     sbatch --export=HOME=$HOME --chdir=$HOME/output/log --partition=cluster2 --error=recodePhenoCensus.err --output=recodePhenoCensus.out $HOME/analysis/recodePhenoCensus.sh
 
 Executes the script
-[recodePhenoCensus.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis)
+[recodePhenoCensus.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/recodePhenoCensus.R)
 to prepare the UK Census data. The data used to assess the level of
 representativeness of the HSE, by comparing the distributions and
 associations between variables present in both the HSE and Census
@@ -178,6 +178,8 @@ rate\>90%).
 
     task="LDAK" # Remove duplicates
     sbatch --export=HOME=$HOME,task=$task --job-name genoPrep.$task --partition=sgg --chdir=$HOME/output/log --output=genoPrep.$task.out --error=genoPrep.$task.err $HOME/analysis/recodeGenoUKBB.sh
+
+</br>
 
 #### Perform weighted GWA in LDAK
 
@@ -207,6 +209,16 @@ rate\>90%).
           done
     done
 
+Performs weighted and standard genome-wide association analyses in
+[LDAK](https://dougspeed.com/ldak/) (version 5.2). The weighted SNP
+estimates were obtained from weighted least square (WLS) regression
+including the generated sampling weights (`--linear --sample-weights`).
+Executes the script
+[ldakGWA.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakGWA.R)
+per phenotype and per chromosome.
+
+</br>
+
 #### Process LDAK output
 
     #rm $HOME/output/ldak/regressComb/*
@@ -221,6 +233,11 @@ rate\>90%).
             sbatch --export=HOME=$HOME,pheno=$pheno --chdir=$HOME/output/log --job-name ldakProcess_${pheno} --output=ldakProcess_${pheno}.out --partition=cluster2 --time="0-02:30:00" $HOME/analysis/ldakProcess.sh
             fi
     done
+
+Executes the script
+[ldakProcess.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakProcess.R)
+
+</br>
 
 #### Get SNP correlations
 
@@ -238,44 +255,114 @@ rate\>90%).
     extractSNPs="process"
     sbatch --export=HOME=$HOME,chunks=$chunks,extractSNPs=$extractSNPs --time="0-0:30:00" --output=snpProcess.out --array 1 --chdir=$HOME/output/log --partition=sgg $HOME/analysis/ldakSNPcor.sh
 
-</br>
+</br></br>
 
 # Downstream GWA analyses
 
 #### LD Score regression and heritability estimates
 
+SNP heritability estimates were estimated for both the standard GWA and
+weighted GWA using LD score regression as implemented in
+[GenomicSEM](https://www.nature.com/articles/s41562-019-0566-x). A
+detailed documentation on how to run GenomicSEM can be found
+[here](https://github.com/GenomicSEM/GenomicSEM/wiki).
+
     # ======= Munge data ==============
-    munge="yes" # should GWAS be newly muged?
+    munge="yes" # should GWAS be munged?
     sbatch --export=HOME=$HOME,munge=$munge,iterate="no" --chdir=$HOME/output/log --output=ldakLDSC.out --partition=cluster2 $HOME/analysis/ldakLDSC.sh
+
+Executes the script
+[ldakLDSC.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakLDSC.R)
+to munge the summary statistics (`munge="yes"`)
+
+</br>
 
     # ======= Perform LDSC on LDAK data ==============
     munge="ldsc" # should GWAS be newly muged?
     sbatch --export=HOME=$HOME,munge=$munge,iterate="no" --chdir=$HOME/output/log --output=ldakLDSC.out --partition=cluster2 $HOME/analysis/ldakLDSC.sh
 
+Executes the script
+[ldakLDSC.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakLDSC.R)
+to perform LDSC regression among all GWAsed phenotypes (`munge="ldsc"`)
+
+</br>
+
     # ======= JACKKNIFE ==============
     munge="JK_filter" # filter LD scores (200 splits)
     sbatch --export=HOME=$HOME,munge=$munge,iterate="no" --chdir=$HOME/output/log --error=sexCheck.err --output=ldakLDSC.out --partition=cluster2 $HOME/analysis/ldakLDSC.sh
+
+Executes the script
+[ldakLDSC.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakLDSC.R)
+to split the genome input into 200 equal blocks of SNPs
+(`munge="JK_filter"`).
+
+</br>
 
     # ======= JACKKNIFE ==============
     munge="JK" # perform Jackknife
     sbatch --export=HOME=$HOME,munge=$munge,iterate="yes" --array 1-200 --chdir=$HOME/output/log --output=ldakLDSC.out --partition=cluster2 $HOME/analysis/ldakLDSC.sh
 
+Executes the script
+[ldakLDSC.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakLDSC.R)
+to perform 200-block Jackknife analysis (`munge="JK"`).
+
+</br>
+
     # ======= JACKKNIFE (process) ==============
     munge="JK_process" # process Jackknife results
     sbatch --export=HOME=$HOME,munge=$munge,iterate="no" --chdir=$HOME/output/log --output=ldakLDSC.out --partition=cluster2 $HOME/analysis/ldakLDSC.sh
+
+Executes the script
+[ldakLDSC.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakLDSC.R)
+to obtain correlation coefficients between the weighted and standard
+![h^2](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;h%5E2 "h^2")
+/
+![r_g](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;r_g "r_g")
+estimates (`munge="JK_process"`).
+
+</br>
 
     # ======= Perform LDSC on PS (weighted) ==============
     # NOTE: needs to be done AFTER running LDSC on LDAK
     munge="yes" 
     sbatch --export=HOME=$HOME,munge=$munge --chdir=$HOME/output/log --output=ldscReg.out --partition=sgg $HOME/analysis/ldscReg.sh
 
+Executes the script
+[ldscReg.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldscReg.R)
+to obtain genetic correlations between UKBB participation and other
+traits, using LD-score regression. The summary statistic files used in
+LD-score regression were obtained for 49 health and behavioural
+phenotypes, using publically available summary statistic files
+accessible via consortia websites or the [MRC-IEU OpenGWAS
+project](https://gwas.mrcieu.ac.uk)
+
 #### Autosomal GWA on sex
 
+We conducted autosomal wGWA and standard GWA on biological sex and
+evaluated if wGWA reduced sex-differential participation bias. As
+previously suggested by [Pirastu et
+al. (2021)](https://www.nature.com/articles/s41588-021-00846-7),
+autosomal heritability linked to biological sex could result from
+sex-differential participation. The script
+[sexSNPcheck.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/sexSNPcheck.R)
+compares the SNP effects estimated in our autosomal wGWA to the effects
+of previously identified sex-associated variants. Here, 49 variants
+assessed in an independent sample of \>2,400,000 volunteers curated by
+23andMe22 were selected (listed in
+[sexSNP23andme.xlsx](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/data/sexSNP23andme.xlsx).
+
     sbatch --export=HOME=$HOME --chdir=$HOME/output/log --output=sexCheck.out --error=sexCheck.err --partition=sgg $HOME/analysis/sexSNPcheck.sh
+
+</br>
 
 #### Mendelian Randomization analyses
 
     # ======= Perform MR ==============
-    sbatch --export=HOME=$HOME --chdir=$HOME/output/log --output=ldakMR.out --error=ldakMR.err --partition=cluster $HOME/analysis/ldakMR.sh
+    sbatch --export=HOME=$HOME,task="MR" --chdir=$HOME/output/log --output=ldakMR.out --error=ldakMR.err --partition=cluster $HOME/analysis/ldakMR.sh
+
+    # ======= Process MR results ==============
+    sbatch --export=HOME=$HOME,task="MR_JKprocess" --chdir=$HOME/output/log --output=ldakMR.out --error=ldakMR.err --partition=cluster $HOME/analysis/ldakMR.sh
 
 </br></br>
+
+# Summary of findings
