@@ -3,83 +3,174 @@ Correction for participation bias in the UK Biobank
 
 # Overview
 
-The following scripts guide through the main analytical steps of the
-work, including
-
-# Table of Contents
-
--   [Generation of the UKBB Sampling Weights](#genWeights)
-
-    -   [Processing of UKBB phenotype data](#procPhenoUKBB)
-    -   [Preparation of HSE phenotype data](#procPhenoHSE)
-    -   [Assess performance of the sampling weights](#performanceW)
-    -   [Compare with UK Census data](#performanceCensus)
-    -   [Prepare genotype data](#prepareGeno)
-
--   [Weighted genome-wide association analyses](#wGWA)
-
-    -   [Prepare genotype data for LDAK](#prepLDAK)
-    -   [Perform weighted GWA in LDAK](#perfLDAK)
-    -   [Process LDAK output](#procLDAK)
-    -   [Get SNP correlations](#getCor)
-
--   [Downstream GWA analyses](#downstreamGWA)
-
-    -   [LD Score regression and heritability estimates](#ldsc)
-    -   [Autosomal GWA on sex](#sexGWA)
-    -   [Mendelian Randomization analyses](#MR)
-
 The complete analytical pipeline used to run the weighted genome-wide
-association analyses is included in the script ‘xxx’. The scripts used
-to process the results and prepare the plots and table for publication
-are included in ‘xxx’.
+association analyses is included in the script
+[UKBBweightingPipeline.sh](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis).
+The scripts used to process the results and prepare the plots and table
+for publication are included in the R script
+[UKBBweighting.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis).
+
+</br>
+
+-   [Generation of the UKBB Sampling
+    Weights](#generation-of-the-ukbb-sampling-weights)
+
+    -   [Preparation of UKBB phenotype
+        data](#preparation-of-ukbb-phenotype-data)
+    -   [Preparation of HSE phenotype
+        data](#processing-of-hse-phenotype-data)
+    -   [Assess performance of the sampling
+        weights](#assess-performance-of-the-sampling-weights)
+    -   [Compare with UK Census data](#compare-with-uk-census-data)
+    -   [Prepare genotype data](#prepare-genotype-data)
+
+-   [Weighted genome-wide association
+    analyses](#weighted-genome-wide-association-analyses)
+
+    -   [Prepare genotype data for
+        LDAK](#prepare-genotype-data-for-ldak)
+    -   [Perform weighted GWA in LDAK](#perform-weighted-gwa-in-ldak)
+    -   [Process LDAK output](#process-ldak-output)
+    -   [Get SNP correlations](#get-snp-correlations)
+
+-   [Downstream GWA analyses](#downstream-gwa-analyses)
+
+    -   [LD Score regression and heritability
+        estimates](#ls-score-regression-and-heritability-estimates)
+    -   [Autosomal GWA on sex](#autosomal-gwa-on-sex)
+    -   [Mendelian Randomization
+        analyses](#mendelian-randomization-analyses)
+
+</br></br>
 
 # Generation of the UKBB Sampling Weights
+
+</br>
 
 #### Preparation of UKBB phenotype data
 
     # ======= Merge UKBB phenotype data ==============
     sbatch --export=HOME=$HOME,sample="extractUKBB" --chdir=$HOME/output/log --job-name recodePheno.${sample} --partition=cluster2 $HOME/analysis/recodePheno.sh
 
+Executes the script
+[exxtractUKBB.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis)
+
+</br>
+
     # ======= Prepare UKBB phenotype data ==============
     sbatch --export=HOME=$HOME,sample="UKBB" --chdir=$HOME/output/log --job-name recodePheno.${sample} --partition=cluster2 $HOME/analysis/recodePheno.sh
+
+Executes the script
+[recodePhenoUKBB.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis)
+
+</br>
 
 #### Preparation of HSE phenotype data
 
     # ======= Prepare HSE phenotype data ==============
-    # Note: does not run as job (£ in income variable not recognized)
     $HOME/programs/R-4.1.2/bin/R --no-save < $HOME/analysis/recodePhenoHSE.R --args $HOME > $HOME/output/log/recodePhenoHSE.log 2>&1 & disown
+
+Executes the script
+[recodePhenoHSE.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis)
+
+</br>
 
     # ======= Prepare HSE/UKBB data for weighting ==============
     sbatch --export=HOME=$HOME --chdir=$HOME/output/log --partition=cluster2 --time="0-02:00:00" --output=weighPrepUKBB_HSE.out $HOME/analysis/weighPrepUKBB_HSE.sh
 
+Executes the script
+[weighPrepUKBB_HSE.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis)
+
+</br>
+
 #### Assess performance of the sampling weights
 
-    # ======= Get weighted phenotype data ==============
+Relies on the script
+[weighUKBB_HSE.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis)
+to perform LASSO regression in glmnet to predict UKBB participation,
+conditional on all harmonized auxiliary variables.
+
+</br>
+
     # no cross-validation
     validation="all"
     sbatch --export=HOME=$HOME,validation="all" --chdir=$HOME/output/log --job-name weighUKBB_HSE.${validation} --error=weighUKBB_HSE.${validation}.err --partition=sgg --time="0-47:00:00" --output=weighUKBB_HSE.${validation}.out $HOME/analysis/weighUKBB_HSE.sh
+
+If `validation="all"`, the following LASSO is tested: a model including
+the main effects of all auxiliary variables, where categorical and
+binary variables are entered as dummy variables, indexing each possible
+level of the variable. The model also includes all possible two-way
+interaction terms among the dummy and continuous variables.
+
+</br>
 
     # 5-times cross-validation
     validation="validation"
     sbatch --export=HOME=$HOME,validation="validation" --chdir=$HOME/output/log --job-name weighUKBB_HSE.${validation} --error=weighUKBB_HSE.${validation}.err --partition=sgg --time="0-47:00:00" --output=weighUKBB_HSE.${validation}.out $HOME/analysis/weighUKBB_HSE.sh
 
+If `validation="validation"`, LASSO regression is performed in
+train-test splits of the data (5-fold, with a split ratio of 80:20).
+
+</br>
+
     # get correlations
     validation="getcor"
     sbatch --export=HOME=$HOME,validation="getcor" --chdir=$HOME/output/log  --job-name weighUKBB_HSE.${validation} --error=weighUKBB_HSE.${validation}.err --partition=sgg --time="0-47:00:00" --output=weighUKBB_HSE.${validation}.out $HOME/analysis/weighUKBB_HSE.sh
+
+If `validation="getcor"`, the correlations among all auxiliary variables
+within the UKBB and the HSE are estimated.
+
+</br>
 
     # check Regresssion predicting sample status
     validation="RegCheck"
     sbatch --export=HOME=$HOME,validation="RegCheck" --chdir=$HOME/output/log  --job-name weighUKBB_HSE.${validation} --error=weighUKBB_HSE.${validation}.err --partition=sgg --time="0-47:00:00" --output=weighUKBB_HSE.${validation}.out $HOME/analysis/weighUKBB_HSE.sh
 
+If `validation="RegCheck"`, the weighted means and proportions are
+estimated. Also tested is a univariate logistic regression model
+predicting UKBB participation, where UKBB individuals were given their
+normalized weight and HSE participants were given a weight of 1.
+
+</br>
+
+    # prepare data for GWA
+    validation="prepGWA"
+    sbatch --export=HOME=$HOME,validation="prepGWA" --chdir=$HOME/output/log  --job-name weighUKBB_HSE.${validation} --error=weighUKBB_HSE.${validation}.err --partition=cluster2 --time="0-04:00:00" --output=weighUKBB_HSE.${validation}.out $HOME/analysis/weighUKBB_HSE.sh
+
+</br>
+
+    # get info on excluded individuals
+    validation="missingness"
+    sbatch --export=HOME=$HOME,validation="matching" --chdir=$HOME/output/log  --job-name weighUKBB_HSE.${validation} --error=weighUKBB_HSE.${validation}.err --partition=sgg --time="0-44:00:00" --output=weighUKBB_HSE.${validation}.out $HOME/analysis/weighUKBB_HSE.sh
+
+</br>
+
 #### Compare with UK Census data
 
     sbatch --export=HOME=$HOME --chdir=$HOME/output/log --partition=cluster2 --error=recodePhenoCensus.err --output=recodePhenoCensus.out $HOME/analysis/recodePhenoCensus.sh
+
+Executes the script
+[recodePhenoCensus.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis)
+to prepare the UK Census data. The data used to assess the level of
+representativeness of the HSE, by comparing the distributions and
+associations between variables present in both the HSE and Census
+sample.
+
+</br>
 
 #### Prepare genotype data
 
     task="QC" # Remove MAF > 0.01 & INFO> 0.9 & HWE
     sbatch --export=HOME=$HOME,task=$task --job-name genoPrep.$task --partition=sgg --chdir=$HOME/output/log --output=genoPrep.$task.out --error=genoPrep.$task.err $HOME/analysis/recodeGenoUKBB.sh
+
+Application of QC filters for genome-wide analyses to select
+participants (i.e., exclusion of related individuals, exclusion of
+non-White British ancestry based on principal components, high missing
+rate and high heterozygosity on autosomes) and genetic variants
+(Hardy–Weinberg disequilibrium, minor allele frequency\>1% and call
+rate\>90%).
+
+</br></br>
 
 # Weighted genome-wide association analyses
 
@@ -147,6 +238,8 @@ are included in ‘xxx’.
     extractSNPs="process"
     sbatch --export=HOME=$HOME,chunks=$chunks,extractSNPs=$extractSNPs --time="0-0:30:00" --output=snpProcess.out --array 1 --chdir=$HOME/output/log --partition=sgg $HOME/analysis/ldakSNPcor.sh
 
+</br>
+
 # Downstream GWA analyses
 
 #### LD Score regression and heritability estimates
@@ -184,3 +277,5 @@ are included in ‘xxx’.
 
     # ======= Perform MR ==============
     sbatch --export=HOME=$HOME --chdir=$HOME/output/log --output=ldakMR.out --error=ldakMR.err --partition=cluster $HOME/analysis/ldakMR.sh
+
+</br></br>
