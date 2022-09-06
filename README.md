@@ -41,6 +41,8 @@ for publication are included in the R script
     -   [Mendelian Randomization
         analyses](#mendelian-randomization-analyses)
 
+-   [Summary of findings](#summary-of-findings)
+
 </br></br>
 
 # Generation of the UKBB Sampling Weights
@@ -315,10 +317,7 @@ to perform 200-block Jackknife analysis (`munge="JK"`).
 Executes the script
 [ldakLDSC.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakLDSC.R)
 to obtain correlation coefficients between the weighted and standard
-![h^2](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;h%5E2 "h^2")
-/
-![r_g](https://latex.codecogs.com/png.image?%5Cdpi%7B110%7D&space;%5Cbg_white&space;r_g "r_g")
-estimates (`munge="JK_process"`).
+$h^2$ / $r_g$ estimates (`munge="JK_process"`).
 
 </br>
 
@@ -366,3 +365,100 @@ assessed in an independent sample of \>2,400,000 volunteers curated by
 </br></br>
 
 # Summary of findings
+
+Executes the script
+[UKBBweighting.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/UKBBweighting.R)
+to generate figures and tables.
+
+### Figure 2
+
+##### A
+
+<img src="results/figures/fig2A_PS.png" alt="Figure 2A" width="50%" style="display: block; margin: auto;" />
+
+</br></br>
+
+##### B
+
+<img src="results/figures/fig2B_Reg.png" alt="Figure 2B" width="80%" style="display: block; margin: auto;" />
+
+</br></br>
+
+##### C
+
+<img src="results/figures/fig2C_Lasso.png" alt="Figure 2C" width="100%" style="display: block; margin: auto;" />
+
+</br></br>
+
+##### D
+
+<img src="results/figures/fig2D_PSchange.png" alt="Figure 2D" width="100%" style="display: block; margin: auto;" />
+
+</br></br>
+
+### Figure 3
+
+<img src="results/figures/snPlotCombinedProp.png" alt="Figure 23" width="100%" style="display: block; margin: auto;" />
+</br> </br>
+
+### Figure 4. Genome-wide association study on the liability to UK Biobank participation
+
+Panel (A) displays the Manhattan plot of the genome-wide association
+study on the liability to UKBB participation. Labels are provided for
+the top LD-independent genome-wide significant SNPs (i.e., SNPs above
+the horizontal line, with p\<5×10−8) and gene names obtained through
+positional mapping. The x-axis refers to chromosomal position, the
+y-axis refers to the p-value on a -log10 scale. Panel (B) shown are the
+genetic correlations (rg) of the UKBB participation with traits indexing
+participatory behaviour (in green) and other traits (in blue). The
+script
+[processPSgwa.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/processPSgwa.R)
+contains the code used to generate the output.
+
+##### A
+
+<img src="results/figures/ManHplot_PS.jpeg" alt="A caption" width="100%" />
+
+##### B
+
+<img src="results/figures/ldscorePlot.png" alt="A caption" width="100%" />
+
+</br> </br>
+
+# Supplement Figures
+
+#### sFigure 1. Estimated correlations among harmonized variables in the HSE and the UK Census Microdata
+
+<img src="results/figures/scatterHSE_Census.png" alt="A caption" width="60%" />
+
+</br></br>
+
+#### sFigure 2. Weighted and unweighted genome-wide analyses: number of genome-wide variants
+
+<img src="results/figures/snPlotCombined.png" alt="A caption" width="60%" />
+
+</br></br>
+
+#### sFigure 3. Weighted and unweighted genome-wide analyses: SNP effects
+
+<img src="results/figures/snPlotSigCombined.png" alt="A caption" width="60%" />
+
+</br></br>
+
+#### sFigure 4. Genome-wide association study on UKBB participation - QQ plot
+
+<img src="results/figures/QQplot_PS.jpeg" alt="A caption" width="60%" />
+
+</br></br>
+
+#### sFigure 5. SNP heritability estimates in weighted (wGWA) and standard genome-wide (GWA) analyses
+
+LDSC heritability ($h^2$) estimates, obtained using the output from
+standard (unweighted) GWA analyses \[GWA(h2)\] and probability weighted
+GWA \[wGWA(h2)\]. The right panel displays the differences in SNP
+heritability between standard and weighted GWA (h2 - hw2). (\*)
+Estimates showing significant differences (pFDR\<0.05)
+
+<img src="results/figures/h2PlotLiab.png" alt="A caption" width="100%" />
+
+</br></br>
