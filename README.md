@@ -420,7 +420,7 @@ deviation of the unweighted standard deviation (sd) \[mw-m/sd\].
 
 ##### D
 
-<img src="results/figures/fig2D_PSchange.png" alt="Figure 2D" width="100%" style="display: block; margin: auto;" />
+<img src="results/figures/PSchange.png" alt="Figure 2D" width="100%" style="display: block; margin: auto;" />
 
 </br></br>
 
