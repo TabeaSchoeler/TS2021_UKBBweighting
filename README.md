@@ -414,7 +414,7 @@ deviation of the unweighted standard deviation (sd) \[mw-m/sd\].
 
 ##### C
 
-<img src="results/figures/fig2C_Lasso.png" alt="Figure 2C" width="100%" style="display: block; margin: auto;" />
+<img src="results/figures/LASSOmain.png" alt="Figure 2C" width="100%" style="display: block; margin: auto;" />
 
 </br></br>
 
