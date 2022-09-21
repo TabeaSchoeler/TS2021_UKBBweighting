@@ -408,7 +408,7 @@ deviation of the unweighted standard deviation (sd) \[mw-m/sd\].
 
 ##### B
 
-<img src="results/figures/fig2B_Reg.png" alt="Figure 2B" width="80%" style="display: block; margin: auto;" />
+<img src="results/figures/weightReg.png" alt="Figure 2B" width="80%" style="display: block; margin: auto;" />
 
 </br></br>
 
