@@ -5,7 +5,10 @@ Correction for participation bias in the UK Biobank
 
 The complete analytical pipeline used to run the weighted genome-wide
 association analyses is included in the script
-[UKBBweightingPipeline.sh](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/UKBBweightingPipeline.sh).
+[UKBBweightingPipeline.sh](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/UKBBweightingPipeline.sh).
+
+</br>
+
 The scripts used to process the results and prepare the plots and table
 for publication are included in the R script
 [UKBBweighting.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/UKBBweighting.R).
@@ -59,7 +62,7 @@ for publication are included in the R script
     sbatch --export=HOME=$HOME,sample="extractUKBB" --chdir=$HOME/output/log --job-name recodePheno.${sample} --partition=cluster2 $HOME/analysis/recodePheno.sh
 
 Executes the script
-[exxtractUKBB.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/exxtractUKBB.R)
+[exxtractUKBB.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/exxtractUKBB.R)
 
 </br>
 
@@ -67,7 +70,7 @@ Executes the script
     sbatch --export=HOME=$HOME,sample="UKBB" --chdir=$HOME/output/log --job-name recodePheno.${sample} --partition=cluster2 $HOME/analysis/recodePheno.sh
 
 Executes the script
-[recodePhenoUKBB.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/recodePhenoUKBB.R)
+[recodePhenoUKBB.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/recodePhenoUKBB.R)
 
 </br>
 
@@ -77,7 +80,7 @@ Executes the script
     $HOME/programs/R-4.1.2/bin/R --no-save < $HOME/analysis/recodePhenoHSE.R --args $HOME > $HOME/output/log/recodePhenoHSE.log 2>&1 & disown
 
 Executes the script
-[recodePhenoHSE.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis)
+[recodePhenoHSE.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/recodePhenoHSE.R)
 
 </br>
 
@@ -85,14 +88,14 @@ Executes the script
     sbatch --export=HOME=$HOME --chdir=$HOME/output/log --partition=cluster2 --time="0-02:00:00" --output=weighPrepUKBB_HSE.out $HOME/analysis/weighPrepUKBB_HSE.sh
 
 Executes the script
-[weighPrepUKBB_HSE.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/weighPrepUKBB_HSE.R)
+[weighPrepUKBB_HSE.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/weighPrepUKBB_HSE.R)
 
 </br>
 
 #### Assess performance of the sampling weights
 
 Relies on the script
-[weighUKBB_HSE.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/weighUKBB_HSE.R)
+[weighUKBB_HSE.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/weighUKBB_HSE.R)
 to perform LASSO regression in glmnet to predict UKBB participation,
 conditional on all harmonized auxiliary variables.
 
@@ -156,7 +159,7 @@ normalized weight and HSE participants were given a weight of 1.
     sbatch --export=HOME=$HOME --chdir=$HOME/output/log --partition=cluster2 --error=recodePhenoCensus.err --output=recodePhenoCensus.out $HOME/analysis/recodePhenoCensus.sh
 
 Executes the script
-[recodePhenoCensus.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/recodePhenoCensus.R)
+[recodePhenoCensus.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/recodePhenoCensus.R)
 to prepare the UK Census data. The data used to assess the level of
 representativeness of the HSE, by comparing the distributions and
 associations between variables present in both the HSE and Census
@@ -220,7 +223,7 @@ Performs weighted and standard genome-wide association analyses in
 estimates were obtained from weighted least square (WLS) regression
 including the generated sampling weights (`--linear --sample-weights`).
 Executes the script
-[ldakGWA.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakGWA.R)
+[ldakGWA.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/ldakGWA.R)
 per phenotype and per chromosome.
 
 </br>
@@ -241,7 +244,7 @@ per phenotype and per chromosome.
     done
 
 Executes the script
-[ldakProcess.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakProcess.R)
+[ldakProcess.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/ldakProcess.R)
 
 </br>
 
@@ -278,7 +281,7 @@ detailed documentation on how to run GenomicSEM can be found
     sbatch --export=HOME=$HOME,munge=$munge,iterate="no" --chdir=$HOME/output/log --output=ldakLDSC.out --partition=cluster2 $HOME/analysis/ldakLDSC.sh
 
 Executes the script
-[ldakLDSC.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakLDSC.R)
+[ldakLDSC.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/ldakLDSC.R)
 to munge the summary statistics (`munge="yes"`)
 
 </br>
@@ -288,7 +291,7 @@ to munge the summary statistics (`munge="yes"`)
     sbatch --export=HOME=$HOME,munge=$munge,iterate="no" --chdir=$HOME/output/log --output=ldakLDSC.out --partition=cluster2 $HOME/analysis/ldakLDSC.sh
 
 Executes the script
-[ldakLDSC.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakLDSC.R)
+[ldakLDSC.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/ldakLDSC.R)
 to perform LDSC regression among all GWAsed phenotypes (`munge="ldsc"`)
 
 </br>
@@ -298,7 +301,7 @@ to perform LDSC regression among all GWAsed phenotypes (`munge="ldsc"`)
     sbatch --export=HOME=$HOME,munge=$munge,iterate="no" --chdir=$HOME/output/log --error=sexCheck.err --output=ldakLDSC.out --partition=cluster2 $HOME/analysis/ldakLDSC.sh
 
 Executes the script
-[ldakLDSC.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakLDSC.R)
+[ldakLDSC.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/ldakLDSC.R)
 to split the genome input into 200 equal blocks of SNPs
 (`munge="JK_filter"`).
 
@@ -309,7 +312,7 @@ to split the genome input into 200 equal blocks of SNPs
     sbatch --export=HOME=$HOME,munge=$munge,iterate="yes" --array 1-200 --chdir=$HOME/output/log --output=ldakLDSC.out --partition=cluster2 $HOME/analysis/ldakLDSC.sh
 
 Executes the script
-[ldakLDSC.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakLDSC.R)
+[ldakLDSC.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/dakLDSC.R)
 to perform 200-block Jackknife analysis (`munge="JK"`).
 
 </br>
@@ -319,7 +322,7 @@ to perform 200-block Jackknife analysis (`munge="JK"`).
     sbatch --export=HOME=$HOME,munge=$munge,iterate="no" --chdir=$HOME/output/log --output=ldakLDSC.out --partition=cluster2 $HOME/analysis/ldakLDSC.sh
 
 Executes the script
-[ldakLDSC.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldakLDSC.R)
+[ldakLDSC.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/ldakLDSC.R)
 to obtain correlation coefficients between the weighted and standard
 $h^2$ / $r_g$ estimates (`munge="JK_process"`).
 
@@ -331,7 +334,7 @@ $h^2$ / $r_g$ estimates (`munge="JK_process"`).
     sbatch --export=HOME=$HOME,munge=$munge --chdir=$HOME/output/log --output=ldscReg.out --partition=sgg $HOME/analysis/ldscReg.sh
 
 Executes the script
-[ldscReg.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/ldscReg.R)
+[ldscReg.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/ldscReg.R)
 to obtain genetic correlations between UKBB participation and other
 traits, using LD-score regression. The summary statistic files used in
 LD-score regression were obtained for 49 health and behavioural
@@ -349,7 +352,7 @@ previously suggested by [Pirastu et
 al. (2021)](https://www.nature.com/articles/s41588-021-00846-7),
 autosomal heritability linked to biological sex could result from
 sex-differential participation. The script
-[sexSNPcheck.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/sexSNPcheck.R)
+[sexSNPcheck.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/sexSNPcheck.R)
 compares the SNP effects estimated in our autosomal wGWA to the effects
 of previously identified sex-associated variants. Here, 49 variants
 assessed in an independent sample of \>2,400,000 volunteers curated by
@@ -373,7 +376,7 @@ assessed in an independent sample of \>2,400,000 volunteers curated by
 # Summary of findings
 
 Executes the script
-[UKBBweighting.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/UKBBweighting.R)
+[UKBBweighting.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/UKBBweighting.R)
 to generate figures and tables.
 
 ## Main Figures
@@ -449,7 +452,7 @@ y-axis refers to the p-value on a -log10 scale. Panel (B) shown are the
 genetic correlations (rg) of the UKBB participation with traits indexing
 participatory behaviour (in green) and other traits (in blue). The
 script
-[processPSgwa.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis/processPSgwa.R)
+[processPSgwa.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/processPSgwa.R)
 contains the code used to generate the output.
 
 ##### A
