@@ -564,5 +564,5 @@ sample of \>2,400,000 volunteers.
 
 ## Supplementary Tables
 
-All supplementary tables are listed in [weightingUKBB.xlsx](), using the
-script `createTables.R`
+All supplementary tables are listed in [weightingUKBB.xlsx](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/results/tables/), using the
+script [createTables.R](https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/createTables.R)
