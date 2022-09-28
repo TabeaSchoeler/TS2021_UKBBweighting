@@ -8,7 +8,7 @@ association analyses is included in the script
 [UKBBweightingPipeline.sh](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/UKBBweightingPipeline.sh).
 The scripts used to process the results and prepare the plots and table
 for publication are included in the R script
-[UKBBweighting.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/analysis).
+[UKBBweighting.R](#https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/analysis/UKBBweighting.R).
 
 </br>
 
