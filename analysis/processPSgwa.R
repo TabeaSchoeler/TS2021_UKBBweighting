@@ -124,7 +124,5 @@ ldscorePlot = ggplot(data=ldscExternalClean, aes(x=fct_reorder(as.factor(labelCl
   xlab("") +
   labs( y = expression((italic(r[g])))  )
 
-ggsave(file=paste0(HOME,"/results/figures/ldscorePlot.pdf"), plot = ldscorePlot, width = 30, height = 15, units = "cm")
-ggsave(file=paste0(HOME,"/results/figures/ldscorePlot.png"), plot = ldscorePlot, width = 30, height = 15, units = "cm", dpi = 1000)
-
+saveFigure(fileName=paste0(HOME,"/results/figures/ldscorePlot"), plotName= ldscorePlot , w=30, h=15)
 

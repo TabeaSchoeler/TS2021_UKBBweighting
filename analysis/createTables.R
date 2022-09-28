@@ -61,7 +61,7 @@ addWorksheet(wb, extGWA)
 title_name="Table 1. GWA summary statistic files included in LDSC regression"
 sheet=extGWA
 table=GWAinfoSupp
-Info_text="Summary statistic files used to test for genetic correlations between the liability to UKBB participation and other traits. Genetic correlations with other traits. The summary statistic files used in LD-score regression were obtained for health and behavioural phenotypes, using publically available summary statistic files accessible via consortia websites or the MRC-IEU OpenGWAS project (https://gwas.mrcieu.ac.uk)"
+Info_text="Summary statistic files used to test for genetic correlations between the liability to UKBB participation and other traits, accessible via consortia websites or the MRC-IEU OpenGWAS project (https://gwas.mrcieu.ac.uk)"
 # Run functions
 addTable(sheet, table)
 headerFunc(title_name, sheet)
@@ -76,7 +76,7 @@ title_name="Table 2. Demographic variables in HSE, UK Census and UK Biobank"
 sheet=censusData
 census$Category=recodeLevel(census$Category)
 table=census
-Info_text="Comparison of distributions between variables present in the UK Census sample (2011 Census Microdata), the HSE (Health Survey England) and the UKBB"
+Info_text="Comparison of distributions between variables present in the UK Census sample (2011 Census Microdata), the HSE (Health Survey England) and the UKBB (UK Biobank)"
 # Run functions
 addTable(sheet, table)
 headerFunc(title_name, sheet)
@@ -91,7 +91,7 @@ addWorksheet(wb, weightedMean)
 title_name="Table 3. Weighted means and prevalences"
 sheet=weightedMean
 table=weightingChange
-Info_text="Weighting means (for continuous variables) and prevalences (for binary traits) in the UKBB, using the UKBB sampling weights"
+Info_text="Weighted means (for continuous variables) and prevalences (for binary traits) in the UKBB, using the UKBB sampling weights"
 # Run functions
 addTable(sheet, table)
 headerFunc(title_name, sheet)
@@ -182,7 +182,7 @@ addWorksheet(wb, gwaPhenoScan)
 title_name="Table 7. Summary of PhenoScanner results for lead SNPs associated with UK Biobank participations"
 sheet=gwaPhenoScan
 table=pheno_sel
-Info_text="Shown are the results from Phenoscanner, explore previously identified associations of lead SNPs linked to UK Biobank participation"
+Info_text="Shown are the results from Phenoscanner, exploring previously identified associations of lead SNPs linked to UK Biobank participation"
 # Run functions
 addTable(sheet, table)
 headerFunc(title_name, sheet)
