@@ -1,6 +1,11 @@
 Correction for participation bias in the UK Biobank
 ================
 
+# Tutorial
+
+For a practical tutorial, see [here](https://tabeaschoeler.github.io/TS2021_UKBBweighting/wGWA.html)
+
+
 # Overview
 
 The complete analytical pipeline used to run the weighted genome-wide
