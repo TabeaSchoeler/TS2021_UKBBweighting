@@ -1,7 +1,7 @@
 Correction for participation bias in the UK Biobank
 ================
 
-</br>
+</br></br>
 
 # Tutorial 1: Generation of UK Biobak sampling weights 
 
@@ -11,9 +11,11 @@ Correction for participation bias in the UK Biobank
 
 # Tutorial2: How to run weighted genome-wide association tests (in LDAK)
 
-For a practical tutorial, see [here](https://tabeaschoeler.github.io/TS2021_UKBBweighting/wGWA.html)
+- For a practical tutorial illustrating how weighted GWA can be performed using toy data, see [here](https://tabeaschoeler.github.io/TS2021_UKBBweighting/wGWA.html)
 
-</br>
+
+</br></br>
+
 
 # Overview
 
