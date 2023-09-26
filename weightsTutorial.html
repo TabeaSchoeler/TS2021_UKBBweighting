@@ -177,11 +177,25 @@ the sampling weights using the glmnet object</a></li>
     <section id="main-content">
 <div id="outline" class="section level1">
 <h1>Outline</h1>
-<p>This guide should help to generate the UK Biobank probability weights
-using the prediction model derived as part of the paper <a href="https://www.nature.com/articles/s41562-023-01579-9">Participation
+<p>This step-by-step guide should help to quickly generate (~30 minutes)
+the UK Biobank probability weights using the prediction model derived as
+part of the paper <a href="https://www.nature.com/articles/s41562-023-01579-9">Participation
 bias in the UK Biobank distorts genetic associations and downstream
 analyses</a></p>
-<p>This short tutorial will go through the R-script <a href="https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/tutorial">obtainWeights.R</a>
+<p>The sampling weights are generated using the model estimated in the
+corresponding <a href="https://www.nature.com/articles/s41562-023-01579-9">paper</a>,
+where we first combined the harmonized UKBB data with the data from the
+reference sample (HSE) and then applied LASSO regression in glmnet, to
+predict UKBB participation (with UKBB=1; HSE=0). This tutorial
+illustrates how the glmnet LASSO regression output <a href="https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/data/cvfit.rda">cvfit.rda</a>
+can be used to derive the UK Biobank participation probabilities without
+the need to access external reference data (e.g., HSE) is not
+available).</p>
+<p>Going through the pre-processing and data handling steps is important
+as the individual participation probabilites will only be correclly
+obtained if the input data is formatted as the data used to curate the
+prediction model.</p>
+<p>This tutorial will go through the R-script <a href="https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/tutorial">obtainWeights.R</a>
 that can be accessed via the GitHub repository. The only part that needs
 to be modified in the script is the raw UKBB data input file (cf.,
 section “Read in UK Biobank data”).</p>
