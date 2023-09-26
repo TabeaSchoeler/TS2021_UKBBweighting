@@ -5,7 +5,8 @@ Correction for participation bias in the UK Biobank
 
 ## Tutorial 1: Generation of UK Biobak sampling weights 
 
-- The step-by-step guide, including all required data and scripts, is provided [here](https://tabeaschoeler.github.io/TS2021_UKBBweighting/weightsTutorial.html)
+- A step-by-step guide that can be used to generate the sampling weights using the raw UK Biobank data is provided [here](https://tabeaschoeler.github.io/TS2021_UKBBweighting/weightsTutorial.html). The weights are generated using the model estimated in the corresponding [paper](https://www.nature.com/articles/s41562-023-01579-9), where we first combined the harmonized UKBB data with the data from the reference sample (HSE) and then used LASSO regression in glmnetto predict UKBB participation (with UKBB = 1; HSE = 0). This tutorial illistrates how the glmnet output can be used to derive the UK Biobank participation probabilities without the need to access external reference data (e.g., HSE) is not available).
+
 
 </br>
 
