@@ -9,7 +9,7 @@ Correction for participation bias in the UK Biobank
 
 </br>
 
-# Tutorial2: How to run weighted genome-wide association tests (in LDAK)
+# Tutorial 2: How to run weighted genome-wide association tests (in LDAK)
 
 - For a practical tutorial illustrating how weighted GWA can be performed using toy data, see [here](https://tabeaschoeler.github.io/TS2021_UKBBweighting/wGWA.html)
 
