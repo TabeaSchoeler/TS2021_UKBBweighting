@@ -15,7 +15,7 @@ varsAll <- as.data.frame(readxl::read_excel("obtainWeights.xlsx", na="NA"))
 varsLabel = subset(varsAll, is.na(varsAll$ID)==FALSE)
 
 # Read in raw UKBB data
-#UKBBall=readRDS( paste0(HOME, "/data/UKBB/UKBBdf.rds"))
+#UKBBall=readRDS("UKBBdf.rds")
 UKBBall=fread("ukbXXXXXXX.csv")
 
 # Select and rename relevant variables
@@ -51,7 +51,7 @@ UKBBc=UKBBd[complete.cases(UKBBd),]
 
 # Download variable names for glmnet model
 system("wget https://raw.github.com/TabeaSchoeler/TS2021_UKBBweighting/main/data/varsModel.rds")
-varPred=readRDS(paste0(HOME,"/results/rds/varsModel.rds"))
+varPred=readRDS("varsModel.rds")
 
 # include all possible two-way interaction terms among the dummy and continuous variables
 f <- as.formula( ~ .*.)
@@ -59,8 +59,11 @@ xVal <- model.matrix(f, subset(UKBBc, select = varPred))
 
 # get predicted probabilities and sampling weights
 UKBBc$probs <- predict(cvfit, newx=xVal, s="lambda.min", type = "response")[,1]
-UKBBc$IPSW=(1-UKBBc$probs)/UKBBc$probs # inverse probability weighte
+UKBBc$IPSW=(1-UKBBc$probs)/UKBBc$probs # inverse probability weights
 UKBBc$IPSWnorm=UKBBc$IPSW/mean(UKBBc$IPSW) # normalized inverse probability weights
+
+
+head(subset(UKBBc, select=c(eid, probs, IPSW)))
 
 
 # DONE
