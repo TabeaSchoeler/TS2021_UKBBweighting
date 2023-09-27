@@ -181,24 +181,32 @@ the sampling weights using the glmnet object</a></li>
 the UK Biobank probability weights using the prediction model derived as
 part of the paper <a href="https://www.nature.com/articles/s41562-023-01579-9">Participation
 bias in the UK Biobank distorts genetic associations and downstream
-analyses</a></p>
-<p>The sampling weights are generated using the model estimated in the
-corresponding <a href="https://www.nature.com/articles/s41562-023-01579-9">paper</a>,
-where we first combined the harmonized UKBB data with the data from the
-reference sample (HSE) and then applied LASSO regression in glmnet, to
-predict UKBB participation (with UKBB=1; HSE=0). This tutorial
-illustrates how the glmnet LASSO regression output <a href="https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/data/cvfit.rda">cvfit.rda</a>
+analyses</a>.</p>
+<p>To derive the model, we combined the harmonized UKBB data with the
+data from the reference sample (HSE) and then applied LASSO regression
+in glmnet, to predict UKBB participation (with UKBB=1; HSE=0). This
+tutorial illustrates how the glmnet LASSO regression output <a href="https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/data/cvfit.rda">cvfit.rda</a>
 can be used to derive the UK Biobank participation probabilities without
-the need to access external reference data (e.g., HSE) is not
-available).</p>
-<p>Going through the pre-processing and data handling steps is important
-as the individual participation probabilites will only be correclly
-obtained if the input data is formatted as the data used to curate the
-prediction model.</p>
-<p>This tutorial will go through the R-script <a href="https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/tutorial">obtainWeights.R</a>
-that can be accessed via the GitHub repository. The only part that needs
-to be modified in the script is the raw UKBB data input file (cf.,
-section “Read in UK Biobank data”).</p>
+the need to access external reference data (e.g., HSE, Census data
+etc).</p>
+<p>The only required data input for the sampling weights is the raw UKBB
+data file, containing all the variable IDs listed in <a href="https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/data">obtainWeights.xlsx</a>.
+The code shown below can then be used to download the LASSO regression
+output (i.e., the glmnet object <a href="https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/data">cvfit.rda</a>,
+plus additional <a href="https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/data">metadata</a>
+and <a href="https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/tutorial/functionsWeights.R">functions</a>),
+prepare the raw UKBB data (so the variable coding matches the coding of
+the variables included in the glmnet model), and select the UKBB
+participants (e.g., individuals from Scotland are excluded since HSE
+data is only collected in England). Going through the pre-processing and
+data handling steps is important as the individual participation
+probabilities can only be correctly obtained if the input data is
+formatted as the data used to curate the prediction model in the
+paper.</p>
+<p>This tutorial uses the R-script <a href="https://github.com/TabeaSchoeler/TS2021_UKBBweighting/tree/main/tutorial">obtainWeights.R</a>,
+which can be accessed and downloaded via the GitHub repository.</p>
+<p>The only part that needs to be modified in the script is the raw UKBB
+data input file (cf., section “Read in UK Biobank data”).</p>
 <p></br></br></p>
 <div id="install-packages" class="section level2">
 <h2>Install packages</h2>
@@ -222,9 +230,9 @@ section “Read in UK Biobank data”).</p>
 <div id="read-in-uk-biobank-data" class="section level2">
 <h2>Read in UK Biobank data</h2>
 <ul>
-<li>replace the <strong>‘ukbXXXXXXX.csv’</strong> file with the UK
+<li>Replace the <strong>‘ukbXXXXXXX.csv’</strong> file with the UK
 Biobank file containing all the raw predictor variable used to derive
-the participation probabilities</li>
+the participation probabilities.</li>
 </ul>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Read in raw UKBB data</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="va">UKBBall</span><span class="op">=</span>fread<span class="kw">(</span><span class="st">&quot;ukbXXXXXXX.csv&quot;</span><span class="kw">)</span></span></code></pre></div>
@@ -265,19 +273,27 @@ the participation probabilities</li>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#UKBBd=sample_n(UKBBd, size=5000)</span></span>
 <span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="va">UKBBc</span><span class="op">=</span>UKBBd[complete.cases<span class="kw">(</span><span class="ex">UKBBd</span><span class="kw">)</span><span class="ex">,]</span></span>
 <span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co"># Download variable names for glmnet model</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="ex">system</span><span class="er">(</span><span class="st">&quot;wget https://raw.github.com/TabeaSchoeler/TS2021_UKBBweighting/main/data/varsModel.rds&quot;</span><span class="kw">)</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="va">varPred</span><span class="op">=</span>readRDS<span class="kw">(</span><span class="ex">paste0</span><span class="er">(</span><span class="ex">HOME,</span><span class="st">&quot;/results/rds/varsModel.rds&quot;</span><span class="kw">))</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co"># include all possible two-way interaction terms among the dummy and continuous variables</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="ex">f</span> <span class="op">&lt;</span>- as.formula<span class="er">(</span> <span class="ex">~</span> .<span class="pp">*</span>.<span class="kw">)</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="ex">xVal</span> <span class="op">&lt;</span>- model.matrix<span class="er">(</span><span class="ex">f,</span> subset<span class="er">(</span><span class="ex">UKBBc,</span> select = varPred<span class="kw">))</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co"># get predicted probabilities and sampling weights</span></span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="ex">UKBBc</span><span class="va">$probs</span> <span class="op">&lt;</span>- predict<span class="er">(</span><span class="ex">cvfit,</span> newx=xVal, s=<span class="st">&quot;lambda.min&quot;</span>, type = <span class="st">&quot;response&quot;</span><span class="kw">)</span><span class="ex">[,1]</span></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="ex">UKBBc</span><span class="va">$IPSW</span><span class="ex">=</span><span class="er">(</span><span class="ex">1-UKBBc</span><span class="va">$probs</span><span class="kw">)</span><span class="ex">/UKBBc</span><span class="va">$probs</span> <span class="co"># inverse probability weighte</span></span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="ex">UKBBc</span><span class="va">$IPSWnorm</span><span class="ex">=UKBBc</span><span class="va">$IPSW</span><span class="ex">/mean</span><span class="er">(</span><span class="ex">UKBBc</span><span class="va">$IPSW</span><span class="kw">)</span> <span class="co"># normalized inverse probability weights</span></span></code></pre></div>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co"># Download variable names for glmnet model</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="ex">system</span><span class="er">(</span><span class="st">&quot;wget https://raw.github.com/TabeaSchoeler/TS2021_UKBBweighting/main/data/varsModel.rds&quot;</span><span class="kw">)</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="va">varPred</span><span class="op">=</span>readRDS<span class="kw">(</span><span class="st">&quot;varsModel.rds&quot;</span><span class="kw">)</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co"># include all possible two-way interaction terms among the dummy and continuous variables</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="ex">f</span> <span class="op">&lt;</span>- as.formula<span class="er">(</span> <span class="ex">~</span> .<span class="pp">*</span>.<span class="kw">)</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="ex">xVal</span> <span class="op">&lt;</span>- model.matrix<span class="er">(</span><span class="ex">f,</span> subset<span class="er">(</span><span class="ex">UKBBc,</span> select = varPred<span class="kw">))</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co"># get predicted probabilities and sampling weights</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="ex">UKBBc</span><span class="va">$probs</span> <span class="op">&lt;</span>- predict<span class="er">(</span><span class="ex">cvfit,</span> newx=xVal, s=<span class="st">&quot;lambda.min&quot;</span>, type = <span class="st">&quot;response&quot;</span><span class="kw">)</span><span class="ex">[,1]</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="ex">UKBBc</span><span class="va">$IPSW</span><span class="ex">=</span><span class="er">(</span><span class="ex">1-UKBBc</span><span class="va">$probs</span><span class="kw">)</span><span class="ex">/UKBBc</span><span class="va">$probs</span> <span class="co"># inverse probability weights</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="ex">UKBBc</span><span class="va">$IPSWnorm</span><span class="ex">=UKBBc</span><span class="va">$IPSW</span><span class="ex">/mean</span><span class="er">(</span><span class="ex">UKBBc</span><span class="va">$IPSW</span><span class="kw">)</span> <span class="co"># normalized inverse probability weights</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="fu">head</span><span class="er">(</span><span class="ex">subset</span><span class="er">(</span><span class="ex">UKBBc,</span> select=c<span class="er">(</span><span class="ex">eid,</span> probs, IPSW<span class="kw">)))</span></span></code></pre></div>
+<pre><code>      eid     probs       IPSW
+4 10000XX 0.8639087 0.15752975
+5 10000XX 0.9265383 0.07928624
+6 10000XX 0.9678410 0.03322759
+7 10000XX 0.9723823 0.02840206
+8 10000XX 0.9718159 0.02900151
+9 10000XX 0.9694545 0.03150794</code></pre>
 <p></br></p>
 </div>
 <div id="any-feedback" class="section level2">
