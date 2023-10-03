@@ -212,7 +212,9 @@ data input file (cf., section “Read in UK Biobank data”).</p>
 <h2>Install packages</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># load (and install libraries)</span></span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="ex">library</span><span class="er">(</span><span class="st">&#39;fastDummies&#39;</span><span class="kw">)</span></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="ex">library</span><span class="er">(</span><span class="st">&quot;glmnet&quot;</span><span class="kw">)</span> <span class="co"># load glmnet</span></span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="ex">library</span><span class="er">(</span><span class="st">&quot;glmnet&quot;</span><span class="kw">)</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="ex">library</span><span class="er">(</span><span class="st">&#39;data.table&#39;</span><span class="kw">)</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="ex">library</span><span class="er">(</span><span class="st">&#39;plyr’)</span></span></code></pre></div>
 <p></br></p>
 </div>
 <div id="downlaod-data-from-study-repository" class="section level2">
@@ -230,9 +232,9 @@ data input file (cf., section “Read in UK Biobank data”).</p>
 <div id="read-in-uk-biobank-data" class="section level2">
 <h2>Read in UK Biobank data</h2>
 <ul>
-<li>Replace the <strong>‘ukbXXXXXXX.csv’</strong> file with the UK
-Biobank file containing all the raw predictor variable used to derive
-the participation probabilities.</li>
+<li>Replace the <strong>‘ukbXXXXXXX.csv’</strong> file with your own raw
+UKBB data file that contains all the <a href="https://github.com/TabeaSchoeler/TS2021_UKBBweighting/blob/main/data/obtainWeights.xlsx">variable
+IDs</a> needed to obtain the predicted probabilities.</li>
 </ul>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Read in raw UKBB data</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="va">UKBBall</span><span class="op">=</span>fread<span class="kw">(</span><span class="st">&quot;ukbXXXXXXX.csv&quot;</span><span class="kw">)</span></span></code></pre></div>
