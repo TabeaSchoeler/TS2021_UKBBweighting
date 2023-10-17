@@ -1,9 +1,3 @@
-# Install old glmnet package
-#setwd(paste0(HOME, "/programs/R"))
-#system("wget https://cran.r-project.org/src/contrib/Archive/glmnet/glmnet_4.1.tar.gz")
-#install.packages(paste0(HOME, "/programs/R/glmnet_4.1.tar.gz"), repos = NULL, type ='source')
-#library(devtools)
-#install_local(paste0(HOME, "/programs/R/glmnet_4.1-4.tar.gz"))
 
 
 print("Check with variables are continous")
@@ -442,7 +436,6 @@ library(modelsummary)
 library(kableExtra)
 library(gt)
 
-# Save summary table and upload to dropbox
 saveTable=function(df, name, type="other"){
  print(paste0("Save ", name))
 
@@ -477,8 +470,6 @@ uploadLog=function(file){
  path = paste0(LOCAL, "/output/log"), 
  mode = "overwrite")
 }
-
-
 
 
 weightedEstimates=function(df, var, wt){
@@ -599,125 +590,7 @@ remList=function(df){
 
 
 
-GWAS_modified <- function(formula, 
-                          data, 
-                          method = "glm", 
-                          i = seq_len(nrow(geno(data))), 
-                          j = seq_len(ncol(geno(data))), 
-                          chunkSize = NULL, 
-                          nCores = getOption("mc.cores", 2L), 
-                          weighting,
-                          verbose = FALSE, 
-                          binary = "no", ...) {
 
-
-getCoefficients.glm <- function(x) {
-    c(coef(summary(x))[2L, ], N=round(nobs(x), 0))
-}
-
-
-getResponse <- function(formula) {
-    # Extract component from parse tree (see https://cran.r-project.org/doc/manuals/r-release/R-lang.html#Language-objects)
-    sym <- formula[[2L]]
-    # Convert symbol to character
-    as.character(sym)
-}
-
-i <- convertIndex(geno(data), i, "i")
-j <- convertIndex(geno(data), j, "j")
-
-  if(weighting=="yes" | weighting=="weighted"){
-    print("Use survey package")
-     surveyGWA=function(data){
-
-        dataC <- data[complete.cases(data$PS_w), ]
-
-       design.ps <- svydesign(ids=~1,   weights = ~PS_w, data=dataC)
-       svyglm(GWAS.model, design=design.ps)
-     }
-       FUN <- match.fun(surveyGWA)
-         #FUN <- match.fun(method)
-  } else {
-    print("Use glm")
-    FUN <- match.fun(method)
-  }
-
-
-GWAS.model <- update(formula, ".~z+.")
-
-print(paste0("Weighting applied: ", weighting))
-
-OUT <- chunkedApply(X = geno(data), MARGIN = 2L, FUN = function(col, ...) {
-            df <- pheno(data)[i, , drop = FALSE]
-            df[["z"]] <- col
-            if(weighting=="yes" | weighting=="weighted"){
-              print("Weighting variable: PS_w")
-              if(binary=="no"){
-                print("Outcome type: Continuous")
-                fm <- FUN(data = df)
-                #fm <- FUN(GWAS.model, data = df, weights=PS_w, ...)
-              }
-              if(binary=="yes"){
-                  print("Outcome type: Binary")
-                  fm <- FUN(GWAS.model, data = df, weights=PS_w,  family = binomial(logit), ...)
-              }
-
-            }
-            if(weighting=="no" |  weighting=="unweighted"){
-                if(binary=="no"){
-                print("Outcome type: Continuous")
-                fm <- FUN(GWAS.model, data = df, ...)
-                }
-                if(binary=="yes"){
-                  print("Outcome type: Binary")
-                  fm <- FUN(GWAS.model, data = df, family = binomial(logit), ...)
-              }
-            }
-            getCoefficients.glm(fm)
-
-        }, i = i, j = j, chunkSize = chunkSize, nCores = nCores, verbose = verbose, ...)
-
-        OUT <- as.data.frame(t(OUT))
-        OUT$SNP <- colnames(geno(data))[j]
-        print(OUT)
-
-        if(binary=="no"){
-        OUTdf=data.frame(SNP=OUT[["SNP"]],
-                         CHR = data@map$chromosome[j],
-                         BP=data@map$base_pair_position[j],
-                         A1=data@map$allele_1[j], 
-                         A2=data@map$allele_2[j], 
-                         BETA = OUT[['Estimate']],
-                         SE = OUT[['Std. Error']],
-                         P = OUT[['Pr(>|t|)']],
-                         N = OUT[['N']])
-        }
-        if(binary=="yes"){
-        # note: p-value column is different
-        OUTdf=data.frame(SNP=OUT[["SNP"]],
-                         CHR = data@map$chromosome[j],
-                         BP=data@map$base_pair_position[j],
-                         A1=data@map$allele_1[j], 
-                         A2=data@map$allele_2[j], 
-                         BETA = OUT[['Estimate']],
-                         SE = OUT[['Std. Error']],
-                         P = OUT[['Pr(>|z|)']],
-                         N = OUT[['N']])
-        }
-
-    return(OUTdf)
-}
-
-
-
-#standardBeta=function(df, beta, se, N){
- # print("Derive standardized beta")
-#  zscore = beta/ se
-#  df$beta_std = zscore / sqrt(N)  # Use effective sample size
-#  print("Get standard error")
-#  df$se_std = sqrt(1/N)
-#  return(df)
-#}efeffe
 
 
 standardBeta=function(df, beta, se, N){
@@ -731,59 +604,6 @@ standardBeta=function(df, beta, se, N){
     df$beta_std = zscore / sqrt(2*snp_freq*(1-snp_freq)*(n+zscore^2))
     df$se_std  = 1 / sqrt(2*snp_freq*(1-snp_freq)*(n+zscore^2))
   return(df)
-}
-
-
-
-# Slurm function to get correlation estimates
-
-corFunc <- function(loopsCor) {
-    print(paste0("Run job ", loopsCor))
-    nRep=seq(1:2)
-    listCorRan=list()
-    start.time <- Sys.time()
-
-    print(HOME)
-    library(BGData)
-    source(paste0(HOME, "/analysis/input.R"))
-    source(paste0(HOME, "/analysis/functions.R"))
-    load.BGData(paste0(HOME, "/data/UKBB/genoFile.RData"))
-    phenoIn=pheno(bg)
-    dfInc=pheno(bg)[[pheno]]
-
-
-        for(i in 1:max(nRep) ){
-            if(binary=="no"){
-                print("Generate random distribution for continous phenotypes")
-
-                pheno(bg)$phenoRandom1=rnorm(NROW(dfInc), mean=mean(dfInc, na.rm=T), sd=sd(dfInc, na.rm=T) )
-                pheno(bg)$phenoRandom2=rnorm(NROW(dfInc), mean=mean(dfInc, na.rm=T), sd=sd(dfInc, na.rm=T) )
-
-                glmFormulaRandom <- as.formula(paste("phenoRandom1 ~ sex + PC1 + PC2 + PC3 + PC4 + PC5 + batch"))
-                } 
-        if(binary=="yes"){
-                print("Generate random distribution for binary phenotypes")
-                pheno(bg)$phenoRandom1=rbinom(n=NROW(dfInc), size=1, prob=prevalence)
-                pheno(bg)$phenoRandom2=rbinom(n=NROW(dfInc), size=1, prob=prevalence)
-                glmFormulaRandom <- as.formula(paste("as.factor(phenoRandom1) ~ sex + PC1 + PC2 + PC3 + PC4 + PC5 + batch"))
-                 }
-
-        print(paste0("Start iteration ", nRep[i]))
-        print("unweighted")
-        gwasRawRandom <- GWAS_modified(formula = glmFormulaRandom, data = bg, weighting="no", method="glm", j=sel_snps, binary=binary )
-        print("weighted")
-        gwasWeightedRandom <- GWAS_modified(formula = glmFormulaRandom, data = bg, weighting="yes", method="glm", j=sel_snps, binary=binary ) #j = !exclusions j=1:10 to test 10 SNPs
-    
-        gwasRandom=merge(gwasRawRandom, gwasWeightedRandom, by="SNP", all.x=T, suffixes=c("", "_wt"))
-        gwasRandom$iteration=nRep[i]
-        listCorRan[[i]]=gwasRandom
-        }
-        CorRandDF=do.call(rbind, listCorRan)
-        end.time <- Sys.time()
-        runningTime_h=round(difftime(start.time,  end.time, units="hours"), 2)
-        print(   paste0("Runnig time for ",  NROW(sel_snps) , " included SNps and k=", nRep , " repititions: ",runningTime_h , " hours"))
-
-         return(CorRandDF)
 }
 
 
@@ -846,18 +666,6 @@ library(sjlabelled)
 
 
 
-#incomeRecode=function(var){
-#varOut=revalue(as.factor(as.numeric(var)), c(
-#                                          "1" = "<18k","2" = "<18k","3" = "<18k","4" = "<18k","5" = "<18k","6" = "<18k","7" = "<18k","8" = "<18k","9" = "<18k","10"= "<18k",
-#                                          "11"="18k-31k","12"="18k-31k", "13"="18k-31k","14"="18k-31k","15"="18k-31k",
-#                                          "16"="31k-52k","17"="31k-52k","18"="31k-52k","19"="31k-52k","20"="31k-52k", 
-#                                          "21"="52k-100k","22"="52k-100k", "23"="52k-100k","24"="52k-100k","25"="52k-100k",
-#                                          "26"=">100k",  "27"=">100k",  "28"=">100k",  "29"=">100k",  "30"=">100k", "31"=">100k",
- #                                         "32"="not_shared",  "33"="not_shared", "96"="not_shared",  "97"="not_shared"))
-#return(varOut)
-#}
-
-
 sexRecode=function(var){
 varOut=revalue(as.factor(var), c("Male"="Men",
                                   "Female"="Women",
@@ -896,101 +704,6 @@ checkVar=function(yearSel, dfOutList=list(), data){
 
 
 
-
-library(crochet)
-compareModel<- function(formula, 
-                          data, 
-                          method = "glm", 
-                          i = seq_len(nrow(geno(data))), 
-                          j = seq_len(ncol(geno(data))), 
-                          chunkSize = NULL, 
-                          nCores = getOption("mc.cores", 2L), 
-                          weighting,
-                          verbose = FALSE, 
-                          binary = "no", ...) {
-
-
-getCoefficients.glm <- function(x) {
-    c(coef(summary(x))[2L, ], N=round(nobs(x), 0))
-}
-
-
-getResponse <- function(formula) {
-    # Extract component from parse tree (see https://cran.r-project.org/doc/manuals/r-release/R-lang.html#Language-objects)
-    sym <- formula[[2L]]
-    # Convert symbol to character
-    as.character(sym)
-}
-
-i <- convertIndex(geno(data), i, "i")
-j <- convertIndex(geno(data), j, "j")
-
-FUN <- match.fun(method)
-GWAS.model <- update(formula, ".~z+.")
-
-print(paste0("Weighting applied: ", weighting))
-
-OUT <- chunkedApply(X = geno(data), MARGIN = 2L, FUN = function(col, ...) {
-            df <- pheno(data)[i, , drop = FALSE]
-            df[["z"]] <- col
-            if(weighting=="yes" | weighting=="weighted"){
-              if(binary=="no"){
-                print("Outcome type: Continuous")
-                fm <- FUN(GWAS.model, data = df, weights=PS, ...)
-              }
-              if(binary=="yes"){
-                  print("Outcome type: Binary")
-                  fm <- FUN(GWAS.model, data = df, weights=PS,  family = binomial(logit), ...)
-              }
-
-            }
-            if(weighting=="no" |  weighting=="unweighted"){
-                if(binary=="no"){
-                print("Outcome type: Continuous")
-                fm <- FUN(GWAS.model, data = df, ...)
-                }
-                if(binary=="yes"){
-                  print("Outcome type: Binary")
-                  fm <- FUN(GWAS.model, data = df, family = binomial(logit), ...)
-                  
-                  GWAS.model.int <- update(glmFormula, ".~z*PS+.")
-                  fw <- FUN(    GWAS.model.int , data = df, family = binomial(logit), ...)
-                  fmOut=getCoefficients.glm(fm)
-                  #outmod <- as.data.frame(t(fmOut))
-                  #outmod$SNP = colnames(geno(data))[j]
-                  #anova(fm, fw, test="F")[2L, ]
-                  anova(fm, fw, test="F")$`Pr(>F)`
-                  #[2L, ]
-                  # $`Pr(>F)`[2]
-                  #as.data.frame(pvalFtest)
-                  #as.data.frame(t(pvalFtest))
-                  #outmodFtest$SNP <- colnames(geno(data))[j]
-                  #print(anova(fm, fw, test="F")[2L, ])
-                  #merge(outmod,outmodFtest, by="SNP")
-                  # 
-                 # list(outmod, outmodFtest)
-              }
-            }
-           # as.data.frame(outmodFtest)
-            # 
-             #compare.glm <- function(fm=fm, fw=fw) {
-             #anova(fm,fw)[2L, ]
-            #  }
-           # compare.glm()
-
-            #compare.glm <- function(x) {
-            #  anova(x,x)[2L, ]
-            #  }
-            #compare.glm(fm)
-
-        }, i = i, j = j, chunkSize = chunkSize, nCores = nCores, verbose = verbose, ...)
-
-        OUT <- as.data.frame(t(OUT))
-        OUT$V1 <- colnames(geno(data))[j]
-        
-
-    return(OUT)
-}
 
 trimPS=function(weight, l, u){
   design <- svydesign(ids = ~1, data = data.frame(weight = weight), 
@@ -1112,14 +825,6 @@ glmUni=function(variable, weights="no", weightInc=NULL, outcome, df, fam = gauss
 
 
 
-# Read in SNP labels
-readInrsID=function(chr){
-        print(paste0("read in chromosome ", chr))
-        print("SNPs obtained from QCd list (MAF, HWE, INFO)")
-        rsID=bigreadr::fread2(paste0(UKBBgeno, "/genoQC/chr", chr, ".bim"), showProgress = FALSE)
-        rsIDClean=data.frame(SNPlabel=paste0(rsID$V1, ":", rsID$V4, "_", rsID$V5, "_", rsID$V6), SNP=rsID$V2)
-        return(rsIDClean)
-} 
 
 # process results from ldak
 readInSNPs=function(chr, weight="", pheno){
@@ -1227,77 +932,6 @@ if(estimate=="_wt"){
 
 
 
-
-
-evalReg=function(formula, subsetN=3000, data=UKBBHSE, IPSWNorm="yes"){
-  print(formula)
-  if(subsetN>0){
-  HSEsub=subset(data, sampleName=="HSE")
-  UKBBsubsel=subset(data, sampleName=="UKBB")
-  UKBBsub=sample_n(UKBBsubsel, subsetN)
-  UKBBHSEsub=rbind(HSEsub, UKBBsub)
-  } else{
-       UKBBHSEsub=data  
-        HSEsub=subset(data, sampleName=="HSE")
-  }
-
-  psmodel = glm(formula, 
-                data = UKBBHSEsub,
-                family = binomial(link = "logit"),
-                weights = weight_individual) 
-  print("Calculate design weights (propensity score model)")
-  print(coef(summary(psmodel)))
-  
-  UKBBHSEsub$probs = predict(psmodel, type="response")
-  
-  UKBBHSEsub$IPSW_raw=(1-UKBBHSEsub$probs)/UKBBHSEsub$probs
-  UKBBHSEsub$PS_raw=1-UKBBHSEsub$probs
-  UKBBHSEsub$IP_raw=1/UKBBHSEsub$probs
-  
-  UKBBHSEsub$IPSWNorm=c(rep(1, NROW(HSEsub)), normalizeWeights(subset(UKBBHSEsub, sampleName=="UKBB")$IPSW_raw))
-  UKBBHSEsub$PSNorm=c(rep(1, NROW(HSEsub)), normalizeWeights(subset(UKBBHSEsub, sampleName=="UKBB")$PS_raw))
-  UKBBHSEsub$IPNorm=c(rep(1, NROW(HSEsub)), normalizeWeights(subset(UKBBHSEsub, sampleName=="UKBB")$IP_raw))
-  
-  getN=function(weight){
-       N=round((sum(weight)^2)/sum(weight^2),0)
-       return(N)
-  }
-
-  sumPSmod=data.frame(typePS=c("IPSWNorm", "PSNorm", "IPNorm"), minWeight=NA, maxWeight=NA)
-  sumPSmod$minWeight=c(min(UKBBHSEsub$IPSWNorm), min(UKBBHSEsub$PSNorm), min(UKBBHSEsub$IPNorm))
-  sumPSmod$maxWeight=c(max(UKBBHSEsub$IPSWNorm), max(UKBBHSEsub$PSNorm), max(UKBBHSEsub$IPNorm))
-  sumPSmod$nEFF=c(getN(UKBBHSEsub$IPSWNorm), getN(UKBBHSEsub$PSNorm), getN(UKBBHSEsub$IPNorm))
-
-  if(IPSWNorm=="yes"){
-      IPSWNormElim=modelPerform(weightGen="IPSWNorm", data=UKBBHSEsub)
-      sumPSmod$predEliminated=c(IPSWNormElim$predEliminated)
-      sumPSmod$maxEst=c(IPSWNormElim$maxEst)
-  } else{
-    IPSWNormElim=modelPerform(weightGen="IPSWNorm", data=UKBBHSEsub)
-    PSNormElim=modelPerform(weightGen="PSNorm", data=UKBBHSEsub)
-    IPWNormElim=modelPerform(weightGen="IPNorm", data=UKBBHSEsub)
-    sumPSmod$predEliminated=c(IPSWNormElim$predEliminated, PSNormElim$predEliminated, IPWNormElim$predEliminated)
-    sumPSmod$maxEst=c(IPSWNormElim$maxEst, PSNormElim$maxEst, IPWNormElim$maxEst)
-  }
-  sumPSmod$formula=formula
-
-  print(  head(sumPSmod))
-  return(sumPSmod)
-}
-
-
-
-modelPerform=function(weightGen, data){
-   NormModelList=lapply(colDescPS, function(x) glmUni(x, outcome="sample", df=data, weights="yes", weightInc=weightGen, fam=gaussian))
-   NormModel=do.call(rbind, NormModelList)
-   print(NormModel)
-   maxEst=max( abs(NormModel$Estimate))
-   predEliminated=NROW(NormModel)-NROW(subset(NormModel, `Pr(>|t|)` <0.05))
-   lmOut=data.frame(predEliminated, maxEst)
-  return(lmOut)
-}
-
-
 cleanString=function(df, label){
         df$labelShort=df$cat
         df$levelDesc=df$cat
@@ -1310,7 +944,6 @@ df$levelDesc=gsub(paste0("`"), "", df$levelDesc)
 df$levelDesc=gsub(paste0("_"), " ", df$levelDesc)
 return(df)
 }
-
 
 
 
@@ -1500,33 +1133,6 @@ for (i in 1:length(model)) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ldscLDAK=function(model, est="n", prevDat, jkIt=NULL){
 
 if(est=="w"){
@@ -1611,18 +1217,6 @@ for ( i in 1:NROW(rg_se) ) {
 }
   rg=ldscReg[["S_Stand"]]
 
-#ldscJK=ldscMod(traits=paste0("ldak_", model, ".sumstats.gz"),
-#              #sample.prev= c(as.numeric(h2df$sample.prev2[i] ), as.numeric(h2df$sample.prev2[i] ) ),
-#              sample.prev=c(NA,NA),
-#              population.prev=c(NA,NA),
- #             #population.prev=rep(as.numeric(h2df$population.prev[i] ),2) ,
- #                          ld= w,
- #                       wld= w,
- #             trait.names = model,
- ##             stand=T)
-
-#JKlist=ldscJK[["JKList"]]
-#names(JKlist)=model
 
 rgOut=list(rg,rg_se,h2DF)
 names(rgOut)=c("rg", "rg_se", "h2")
@@ -1737,7 +1331,7 @@ checkMissDat=function(var, data){
 }
 
 
-# GENERATE WEIHTS
+# GENERATE WEIGHTS
 getWeights=function(varInc, return="data", validation="all", data=NULL, listCV=NULL){
 
 print("Start regression")
@@ -1752,22 +1346,13 @@ print(paste0("Number of individuals included in validation model: ", NROW(valida
 
 }
 
-#varInc=colDescIncludedPropensity
-#varInc=c("sex", "age", "age_cat", "education_age", "income")
 
 print("Run interaction model")
-  #formulaGLM=as.formula(paste0("sample ~ ", paste0(varInc, collapse=" * ")))
-  # remove continuous
-
 start_time <- Sys.time()
 library('fastDummies')
 #data=sample_n(data, 20000)
 UKBBHSED=createDummy(df=data, varInc, return="data")
 nonDummyIncReg=createDummy(df=data, varInc, return="variable")
-
-
-saveRDS(nonDummyIncReg , paste0(HOME,"/results/rds/varsModel.rds"))
-uploadDropbox(file="varsModel.rds", folder="rds")
 
 print("Number of UKBB/HSE individuals")
 print(table(UKBBHSED$sampleName))
@@ -1776,21 +1361,17 @@ print(table(UKBBHSED$sampleName))
 print("Check missing data per dummy variable")
 checkMIss=lapply(nonDummyIncReg, function(x) checkMissDat(x, data=UKBBHSED))
 
-#UKBBHSED=sample_n(UKBBHSED, 20000)
 y = as.factor(UKBBHSED$sample)
 f <- as.formula( ~ .*.)
-#f <- as.formula( ~ .)
 x <- model.matrix(f,UKBBHSED[, nonDummyIncReg])
-#saveRDS(UKBBHSED, "origRDS.rds")
 
 print(paste0("Variables included in the model: ", NROW(colnames(x)) ))
 w=UKBBHSED$weight_individual
 varModel=data.frame(varModelIn=colnames(x))
 varModel=subset(varModel, varModelIn!="(Intercept)")
 
-# increasing the foldes increases the trainsing data
 set.seed(1234)
-cvfit = cv.glmnet(x, y, # we need to find a model configuration, and thus the value of λ, which minimizes the the residuals (difference between observations and prediction). The glmnet package ships with a build-in cross-validation function. The function cv.glmnet() performs by default 10-fold cross-validation
+cvfit = cv.glmnet(x, y, 
     family = "binomial", 
     type.measure = "class" ,
     nfolds = 5,
@@ -1800,17 +1381,10 @@ cvfit = cv.glmnet(x, y, # we need to find a model configuration, and thus the va
 
 if(validation=="all"){
   print("Upload glmnet object")
-  #saveRDS(cvfit , paste0(HOME,"/results/rds/glmnetW.rds"))
-  #uploadDropbox(file="glmnetW.rds", folder="rds")
-
-
-  #save(cvfit, file=paste0(HOME,"/results/rds/glmnetW.RData"))
-  #uploadDropbox(file="glmnetW.RData", folder="rds")
 
   save(cvfit, file=paste0(HOME,"/results/rds/cvfit.rda"))
-  uploadDropbox(file="cvfit.rda", folder="rds") # has to be the same name as the glmnet object
+  uploadDropbox(file="cvfit.rda", folder="rds") 
 
-  
 
 }
 
@@ -1832,8 +1406,6 @@ print(paste0("Non-dummay variables: ", NROW(varInc), ", all variables: ",NROW(no
 
 print("Lasso estimates")
 print(LassoOut)
-
-
 
 
 
@@ -1863,11 +1435,10 @@ if(validation=="all"){
 }
 
 UKBBHSEDvalidate$IPSW=(1-UKBBHSEDvalidate$probs)/UKBBHSEDvalidate$probs
-#UKBBHSE$IPSW=1/UKBBHSE$probs
 UKBBHSEDvalidate$IPSWNorm=c(normalizeWeights(subset(UKBBHSEDvalidate, sampleName=="HSE")$IPSW), normalizeWeights(subset(UKBBHSEDvalidate, sampleName=="UKBB")$IPSW))
 UKBBHSEDvalidate$propensity.weight.normalized=ifelse(UKBBHSEDvalidate$sampleName=="HSE", UKBBHSEDvalidate$weight_individual, UKBBHSEDvalidate$IPSWNorm)
 
-# Effective sample size from superlearner
+# Effective sample size
 UKBBEffn=subset(UKBBHSEDvalidate, sampleName=="UKBB")
 UKBBHSEDvalidate$nEFF=(sum(UKBBEffn$propensity.weight.normalized)^2)/sum(UKBBEffn$propensity.weight.normalized^2)
 
@@ -1904,40 +1475,6 @@ get_lower_tri<-function(cormat){
 
 
 
-nearestN=function(listCV){
-
-print("Start iteration")
-       set.seed(1234) 
-       library(caret)
-       train=listCV[["train"]]
-       print(paste0(NROW(train), " individuals included in training dataset"))
-       #train=sample_n(train, 1000)
-       train$sample =as.factor(train$sample)
-       test=listCV[["validate"]]
-       test$sample =as.factor(test$sample)
-       print(paste0(NROW(test), " individuals included in testing dataset"))
-
-       #test=sample_n(test, 1000)
-print("Run KNN on training dataset")
-knnFit <- train(as.formula(paste0("sample ~ ", paste0(varInc, collapse=" + "))),
-               data = train, 
-               method = "knn",
-               preProcess = c("center","scale"),
-               trControl = trainControl("cv", number = 10) )
-
-print("Predict on new test set")
-knnPred=predict(knnFit, type = "prob", test)
-outProb=data.frame(probs=knnPred["1"])
-test$probs=outProb$X1
-test$ID=paste0(test$eid, "_", test$sampleName)
-
-print("Done with iteration")
-return(subset(test, select=c(ID, probs)))
-#return(subset(train, select=c(eid, probs)))
-
-}
-
-
 getCorrs=function(data, weights, vars, sample, weighting=""){
 
 if(sample=="UKBB"){
@@ -1956,8 +1493,6 @@ if(weighting==""){
 
 # Create survey design object
 datSel <- data[data$sampleName %in% sample, ]
-#dataDummy=createDummy(df=datSel, varInc, return="data")
-#nonDummyIncReg=createDummy(df=datSel, varInc, return="variable")
 
 datSel=subset(datSel, select=c("ID", weights))
 
@@ -2001,7 +1536,7 @@ weightedDist=function(data, method){
        nonDummyIncReg=createDummy(df=data, varInc, return="variable")
        print("Check if predictors are no longer signidicant in weighted model")
        # unweighted - all
-       #x=nonDummyIncReg[1]
+
        psmodelunweightedList=lapply(nonDummyIncReg, function(x) glmUni(x, outcome="sample", df=dataDummy, weights="yes", weightInc="weight_individual", fam=gaussian))
        psmodelunweighted=do.call(rbind, psmodelunweightedList)
        psmodelunweighted=cleanString(df=psmodelunweighted, label=nonDummyIncReg)
@@ -2363,30 +1898,3 @@ naAux=function(df, var, sample){
 
 
 
-
-runRandomR=function(df, varInc, return){
-       print("Run random forest")
-       library(WeightIt)
-       f <- as.formula( paste0("sample ~ ",  paste0(varInc, collapse=" + ")) )
-       
-       (W1 <- weightit(f, 
-                data = df,
-                method = "super", 
-                estimand = "ATC",
-                SL.library = c("SL.randomForest")))
-       df$probs =W1$ps
-       df$IPSW=(1-df$probs)/df$probs
-       df$IPSWNorm=c(normalizeWeights(subset(df, sampleName=="HSE")$IPSW), normalizeWeights(subset(df, sampleName=="UKBB")$IPSW))
-       df$propensity.weight.normalized=ifelse(df$sampleName=="HSE", df$weight_individual, df$IPSWNorm)
-       print(head(df))
-       print("Check sum PS")
-       print(summary(df$propensity.weight.normalized))
-if(return=="data"){
-       print("Return data.frame")
-       return(df)
-}
-if(return=="weights"){
-       print("Return weights")
-       return(df$propensity.weight.normalized)
-}
-}
