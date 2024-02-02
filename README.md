@@ -17,6 +17,12 @@ Correction for participation bias in the UK Biobank
 
 </br></br>
 
+# Genome-wide summary statistic files
+
+The summary statistic files for 21 UK Biobank traits, including UKBB participation and sex, can be downloaded [here](https://drive.google.com/drive/folders/1SBJwsvlSSIOe_EpkY0HW0TFOVe6ywfxF?usp=sharing). 
+Provided are the summary statistic files obtained from a standard ordinary least squares linear regression model (cf., extension '_standard') and from weighted least squares regression (cf., extension '_weighted'), in which UKBB participants were weighted to achieve higher levels of representativeness. Both models included the same covariates (PC1-PC5, sex, age, batch effect). We applied a linear model to all outcomes (continuous and binary traits). The summary statistic files include SNP with  MAF > 0.01. The GWA on the participation probabilities are labelled as 'PS_standard' and 'PS_weighted'.
+
+</br></br>
 
 # Overview
 
